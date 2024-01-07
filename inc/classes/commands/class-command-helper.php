@@ -20,11 +20,9 @@ class Command_Helper {
 	 * @param string $parent_category_new The name of the new parent category.
 	 * @param int    $child_cat_id_new The ID of the new child category.
 	 * @param int    $parent_cat_id_new The ID of the new parent category.
-	 * @param string $child_category_old The name of the old child category.
-	 * @param int    $child_cat_id_old The ID of the old child category.
 	 * @return void
 	 */
-	public static function set_category( $post_id, $child_category_new, $parent_category_new, $child_cat_id_new, $parent_cat_id_new, $child_category_old, $child_cat_id_old ) {
+	public static function set_category( $post_id, $child_category_new, $parent_category_new, $child_cat_id_new, $parent_cat_id_new ) {
 
 		if ( ! has_term( $child_category_new, 'category', $post_id ) ) {
 			// Check if parent category exists, create if not.
@@ -34,15 +32,11 @@ class Command_Helper {
 
 			// Check if child category exists, create if not.
 			if ( ! $child_cat_id_new ) {
-				$child_cat_id_new = wp_insert_term( $child_category_new, 'category', array( 'parent' => $parent_cat_id_new['term_id'] ) );
+				$child_cat_id_new = wp_insert_term( $child_category_new, 'category', array( 'parent' => intval( $parent_cat_id_new['term_id'] ) ) );
 			}
 
-			wp_set_post_categories( $post_id, array( $child_cat_id_new['term_id'] ), true );
-
-			if ( has_term( $child_category_old, 'category', $post_id ) ) {
-				// Remove the old engineering category term from the post.
-				wp_remove_object_terms( $post_id, intval( $child_cat_id_old['term_id'] ), 'category' );
-			}
+			// Set the new category, replacing all existing categories.
+			wp_set_object_terms( $post_id, array( intval( $child_cat_id_new['term_id'] ) ), 'category' );
 		}
 	}
 

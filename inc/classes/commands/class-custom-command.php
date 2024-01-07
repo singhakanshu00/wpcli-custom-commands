@@ -70,7 +70,7 @@ class Custom_Command extends \WPCOM_VIP_CLI_Command {
 				$post_id = get_the_ID();
 
 				// Setting category.
-				Command_Helper::set_category( $post_id, $child_category_new, $parent_category_new, $child_cat_id_new, $parent_cat_id_new, $child_category_old, $child_cat_id_old );
+				Command_Helper::set_category( $post_id, $child_category_new, $parent_category_new, $child_cat_id_new, $parent_cat_id_new );
 
 				// Setting image count.
 				Command_Helper::set_image_count( $post_id );
