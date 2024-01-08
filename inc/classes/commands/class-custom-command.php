@@ -43,14 +43,10 @@ class Custom_Command extends \WPCOM_VIP_CLI_Command {
 	public function set_post_categories( $args, $assoc_args ) {
 		$post_type = isset( $assoc_args['post-type'] ) ? $assoc_args['post-type'] : 'post';
 
-		$parent_category_old = 'rtCamp';
-		$child_category_old  = 'engineering';
-		$parent_category_new = 'pmc';
-		$child_category_new  = 'rollingstone';
+		$parent_category_new = __( 'pmc', 'pmc-plugin' );
+		$child_category_new  = __( 'rollingstone', 'pmc-plugin' );
 
 		// Get the category term IDs for rtcamp (parent) and engineering (child).
-		$parent_cat_id_old = wpcom_vip_term_exists( $parent_category_old, 'category' );
-		$child_cat_id_old  = wpcom_vip_term_exists( $child_category_old, 'category', $parent_cat_id_old );
 		$parent_cat_id_new = wpcom_vip_term_exists( $parent_category_new, 'category' );
 		$child_cat_id_new  = wpcom_vip_term_exists( $child_category_new, 'category', $parent_cat_id_new );
 
@@ -82,6 +78,7 @@ class Custom_Command extends \WPCOM_VIP_CLI_Command {
 					$posts_fetched = new \WP_Query( $args );
 				}
 			}
+			wp_reset_postdata();
 			WP_CLI::success( __( 'Categories updated and image counts added for posts', 'pmc-plugin' ) );
 		} else {
 			WP_CLI::error( __( 'No Posts found', 'pmc-plugin' ) );

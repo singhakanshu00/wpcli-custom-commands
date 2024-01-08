@@ -54,7 +54,7 @@ class Command_Helper {
 
 		// Count images in post content and update post meta.
 		$featured_image_count = has_post_thumbnail( $post_id ) ? 1 : 0;
-		$content              = get_the_content();
+		$content              = get_post_field( 'post_content', $post_id );
 
 		$image_count       = preg_match_all( '/<img [^>]+>/', $content, $matches );
 		$total_image_count = $featured_image_count + $image_count;
