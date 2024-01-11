@@ -9,11 +9,14 @@ namespace PMC_Plugin\Inc\Classes\Commands;
 
 use WP_CLI;
 use PMC_Plugin\Inc\Classes\Commands\Command_Helper;
+use PMC_Plugin\Inc\Traits\Singleton;
 
 /**
  * Custom CLI command to set post categories and count images.
  */
 class Custom_Command extends \WPCOM_VIP_CLI_Command {
+
+	use Singleton;
 
 	/**
 	 * Constructor function for the class.
@@ -46,10 +49,6 @@ class Custom_Command extends \WPCOM_VIP_CLI_Command {
 		$parent_category_new = __( 'pmc', 'pmc-plugin' );
 		$child_category_new  = __( 'rollingstone', 'pmc-plugin' );
 
-		// Get the category term IDs for rtcamp (parent) and engineering (child).
-		$parent_cat_id_new = wpcom_vip_term_exists( $parent_category_new, 'category' );
-		$child_cat_id_new  = wpcom_vip_term_exists( $child_category_new, 'category', $parent_cat_id_new );
-
 		$args = array(
 			'post_type'      => $post_type,
 			'posts_per_page' => 100,
@@ -64,6 +63,10 @@ class Custom_Command extends \WPCOM_VIP_CLI_Command {
 				$posts_fetched->the_post();
 
 				$post_id = get_the_ID();
+
+				// Get the category term IDs for rtcamp (parent) and engineering (child).
+				$parent_cat_id_new = wpcom_vip_term_exists( $parent_category_new, 'category' );
+				$child_cat_id_new  = wpcom_vip_term_exists( $child_category_new, 'category', $parent_cat_id_new );
 
 				// Setting category.
 				Command_Helper::set_category( $post_id, $child_category_new, $parent_category_new, $child_cat_id_new, $parent_cat_id_new );

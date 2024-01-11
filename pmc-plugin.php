@@ -21,9 +21,13 @@ require_once __DIR__ . '/inc/helper/autoloader.php';
 
 define( 'PMC_PLUGIN_DIR', __DIR__ );
 
-use PMC_Plugin\Inc\Classes\Commands\Custom_Command;
-
-// Register CLI command to set post categories and count images.
-if ( defined( 'WP_CLI' ) && WP_CLI ) {
-	new Custom_Command();
+/**
+ * To load plugin manifest class.
+ *
+ * @return void
+ */
+function pmc_plugin_loader() {
+	\PMC_Plugin\Inc\Classes\Plugin::get_instance();
 }
+
+pmc_plugin_loader();
