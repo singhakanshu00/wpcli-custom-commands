@@ -61,12 +61,11 @@ class Command_Helper {
 
 		// Case: Gallery Shortcode.
 		$image_count_shortcode = 0;
-		$post_content          = get_post_field( 'post_content', $post_id );
 
 		// If post content has gallery shortcode.
-		if ( has_shortcode( $post_content, 'gallery' ) ) {
+		if ( has_shortcode( $content, 'gallery' ) ) {
 			// Fetching all the shortcodes in the post content.
-			if ( preg_match_all( '/' . get_shortcode_regex() . '/s', $post_content, $matches, PREG_SET_ORDER ) ) {
+			if ( preg_match_all( '/' . get_shortcode_regex() . '/s', $content, $matches, PREG_SET_ORDER ) ) {
 				foreach ( $matches as $shortcode ) {
 					if ( 'gallery' === $shortcode[2] ) {
 
