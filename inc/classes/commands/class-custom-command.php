@@ -44,6 +44,9 @@ class Custom_Command extends \WPCOM_VIP_CLI_Command {
 	 * @param array $assoc_args Command associative arguments.
 	 */
 	public function set_post_categories( $args, $assoc_args ) {
+
+		$this->start_bulk_operation();
+
 		$post_type = isset( $assoc_args['post-type'] ) ? $assoc_args['post-type'] : 'post';
 
 		$parent_category_new = __( 'pmc', 'pmc-plugin' );
@@ -74,6 +77,8 @@ class Custom_Command extends \WPCOM_VIP_CLI_Command {
 				// Setting image count.
 				Command_Helper::set_image_count( $post_id );
 
+				$this->vip_inmemory_cleanup();
+
 				// Check if it's time to fetch the next page.
 				if ( $posts_fetched->current_post + 1 === $posts_fetched->post_count ) {
 					// Fetch the next page of posts.
@@ -86,5 +91,7 @@ class Custom_Command extends \WPCOM_VIP_CLI_Command {
 		} else {
 			WP_CLI::error( __( 'No Posts found', 'pmc-plugin' ) );
 		}
+
+		$this->end_bulk_operation();
 	}
 }

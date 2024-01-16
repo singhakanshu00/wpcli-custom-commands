@@ -56,8 +56,20 @@ class Command_Helper {
 		$featured_image_count = has_post_thumbnail( $post_id ) ? 1 : 0;
 		$content              = get_post_field( 'post_content', $post_id );
 
-		$image_count       = preg_match_all( '/<img [^>]+>/', $content, $matches );
-		$total_image_count = $featured_image_count + $image_count;
+		// Case: Image or Gallery block.
+		$image_count_block = substr_count( $content, '<img ' );
+
+		// Case: Gallery Shortcode.
+		$gallery_shortcodes     = get_post_galleries( $post_id, false );
+		$image_count_shortcode = 0;
+
+		foreach( $gallery_shortcodes as $gallery_shortcode ) {
+			if ( isset( $gallery_shortcode['src'] ) && is_array( $gallery_shortcode['src'] ) ) {
+				$image_count_shortcode += count( $gallery_shortcode['src'] );
+			}
+		}
+
+		$total_image_count = $featured_image_count + $image_count_block + $image_count_shortcode;
 
 		update_post_meta( $post_id, '_pmc_image_counts', $total_image_count );
 	}
