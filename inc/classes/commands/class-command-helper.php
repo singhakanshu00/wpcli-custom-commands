@@ -60,12 +60,25 @@ class Command_Helper {
 		$image_count_block = substr_count( $content, '<img ' );
 
 		// Case: Gallery Shortcode.
-		$gallery_shortcodes     = get_post_galleries( $post_id, false );
 		$image_count_shortcode = 0;
+		$post_content          = get_post_field( 'post_content', $post_id );
 
-		foreach( $gallery_shortcodes as $gallery_shortcode ) {
-			if ( isset( $gallery_shortcode['src'] ) && is_array( $gallery_shortcode['src'] ) ) {
-				$image_count_shortcode += count( $gallery_shortcode['src'] );
+		// If post content has gallery shortcode.
+		if ( has_shortcode( $post_content, 'gallery' ) ) {
+			// Fetching all the shortcodes in the post content.
+			if ( preg_match_all( '/' . get_shortcode_regex() . '/s', $post_content, $matches, PREG_SET_ORDER ) ) {
+				foreach ( $matches as $shortcode ) {
+					if ( 'gallery' === $shortcode[2] ) {
+
+						$gallery = do_shortcode_tag( $shortcode );
+
+						// Fetching src from all the images in the gallery shorcode.
+						preg_match_all( '#src=([\'"])(.+?)\1#is', $gallery, $src, PREG_SET_ORDER );
+						if ( ! empty( $src ) ) {
+							$image_count_shortcode += count( $src );
+						}
+					}
+				}
 			}
 		}
 
