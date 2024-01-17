@@ -61,21 +61,46 @@ class Custom_Command extends \WPCOM_VIP_CLI_Command {
 
 		$posts_fetched = new \WP_Query( $args );
 
+		// Get the category term IDs for rtcamp (parent) and engineering (child).
+		$parent_cat_id_new = wpcom_vip_term_exists( $parent_category_new, 'category' );
+		$child_cat_id_new  = wpcom_vip_term_exists( $child_category_new, 'category', $parent_cat_id_new );
+		$new_term          = false;
+
+		// If $parent_cat_id_new is not provided or is not a valid term, creating it.
+		if ( ! $parent_cat_id_new || ! term_exists( $parent_category_new, 'category' ) ) {
+			$parent_cat_id_new = wp_insert_term( $parent_category_new, 'category' );
+			WP_CLI::line( __( 'Success: Created parent category.', 'pmc-plugin' ) );
+			$new_term = true;
+		}
+	
+		// If $child_cat_id_new is not provided or is not a valid term, creating it.
+		if ( ! $child_cat_id_new || ! term_exists( $child_category_new, 'category', $parent_cat_id_new['term_id'] ) ) {
+			$child_cat_id_new = wp_insert_term( $child_category_new, 'category', array( 'parent' => intval( $parent_cat_id_new['term_id'] ) ) );
+			WP_CLI::line( __( 'Success: Created child category.', 'pmc-plugin' ) );
+			$new_term = true;
+		}
+
+		if ( ! $new_term ) {
+			WP_CLI::line( __( 'Info: "pmc" and "rollingstone" Categories already exist.', 'pmc-plugin' ) );
+		}
+
 		if ( $posts_fetched->have_posts() ) {
 			while ( $posts_fetched->have_posts() ) {
 				$posts_fetched->the_post();
 
 				$post_id = get_the_ID();
 
-				// Get the category term IDs for rtcamp (parent) and engineering (child).
-				$parent_cat_id_new = wpcom_vip_term_exists( $parent_category_new, 'category' );
-				$child_cat_id_new  = wpcom_vip_term_exists( $child_category_new, 'category', $parent_cat_id_new );
+				WP_CLI::line( __( 'Processing post: ', 'pmc-plugin' ) . $post_id );
 
 				// Setting category.
-				Command_Helper::set_category( $post_id, $child_category_new, $parent_category_new, $child_cat_id_new, $parent_cat_id_new );
+				wp_set_object_terms( $post_id, array( intval( $parent_cat_id_new['term_id'] ), intval( $child_cat_id_new['term_id'] ) ), 'category' );
+
+				WP_CLI::line( __( 'Terms updated', 'pmc-plugin' ) );
 
 				// Setting image count.
 				Command_Helper::set_image_count( $post_id );
+
+				WP_CLI::line( __( 'Image count meta data is set', 'pmc-plugin' ) );
 
 				$this->vip_inmemory_cleanup();
 
