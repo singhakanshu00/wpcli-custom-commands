@@ -35,10 +35,13 @@ class Custom_Command extends \WPCOM_VIP_CLI_Command {
 	 *
 	 * [--post-type=<post_type>]
 	 * : The post type to update categories. Default is 'post'.
+	 * 
+	 * [--post-per-page=<posts_per_page>]
+	 * : The number of posts to retrieve per batch. Default is 100.
 	 *
 	 * ## EXAMPLES
 	 *
-	 * wp category set_post_categories --post-type=post
+	 * wp category set_post_categories --post-type=post --post-per-page=100
 	 *
 	 * @param array $args Command arguments.
 	 * @param array $assoc_args Command associative arguments.
@@ -47,16 +50,20 @@ class Custom_Command extends \WPCOM_VIP_CLI_Command {
 
 		$this->start_bulk_operation();
 
-		$post_type = isset( $assoc_args['post-type'] ) ? $assoc_args['post-type'] : 'post';
+		$post_type     = isset( $assoc_args['post-type'] ) ? $assoc_args['post-type'] : 'post';
+		$post_per_page = isset( $assoc_args['post-per-page'] ) ? $assoc_args['post-per-page'] : 100;
 
 		$parent_category_new = __( 'pmc', 'pmc-plugin' );
 		$child_category_new  = __( 'rollingstone', 'pmc-plugin' );
 
 		$args = array(
-			'post_type'      => $post_type,
-			'posts_per_page' => 100,
-			'paged'          => 1,
-			'no_found_rows'  => true,
+			'post_type'              => $post_type,
+			'posts_per_page'         => $post_per_page,
+			'fields'                 => 'ids',
+			'paged'                  => 1,
+			'no_found_rows'          => true,
+			'update_post_term_cache' => false,
+			'update_post_meta_cache' => false
 		);
 
 		$posts_fetched = new \WP_Query( $args );
@@ -107,6 +114,8 @@ class Custom_Command extends \WPCOM_VIP_CLI_Command {
 				// Check if it's time to fetch the next page.
 				if ( $posts_fetched->current_post + 1 === $posts_fetched->post_count ) {
 					// Fetch the next page of posts.
+					WP_CLI::line( __( 'Pausing for a breathe..' ) );
+					sleep( 2 );
 					++$args['paged'];
 					$posts_fetched = new \WP_Query( $args );
 				}
